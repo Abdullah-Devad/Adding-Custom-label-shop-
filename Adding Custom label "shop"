@@ -1,0 +1,51 @@
+function main() {
+  var shoppingCampaigns = AdsApp.shoppingCampaigns()
+    //.withCondition("Name CONTAINS_IGNORE_CASE 'Electon'")
+    .withCondition("Status = 'ENABLED'") // only retrieve active campaigns
+     .get();
+  while (shoppingCampaigns.hasNext()) {
+    var campaign = shoppingCampaigns.next();
+    var adGroups = campaign.adGroups()
+      //.withCondition("Name CONTAINS_IGNORE_CASE 'testo'")
+     .withCondition("Status = 'ENABLED'") // only retrieve active campaigns
+      .get();
+    while (adGroups.hasNext()) {
+      var adGroup = adGroups.next();
+      var rootProductGroup = adGroup.rootProductGroup();
+      traverseProductGroup(rootProductGroup);
+    }
+  }
+}
+
+function traverseProductGroup(productGroup) {
+  if (productGroup.children().get().hasNext()) {
+    var children = productGroup.children().get();
+    while (children.hasNext()) {
+      traverseProductGroup(children.next());
+    }
+  } else if (!productGroup.isExcluded()) { 
+     var lowChild = productGroup.newChild()
+       .customLabelBuilder()
+       .withType("CUSTOM_LABEL_4")
+       .withValue("low")
+       .build();
+
+   //    lowChild.setMaxCpc(0.05);
+
+     var mediumChild = productGroup.newChild()
+       .customLabelBuilder()
+       .withType("CUSTOM_LABEL_4")
+       .withValue("medium")
+       .build();
+
+  //   mediumChild.setMaxCp(adGroup.bidding().getCpc());
+
+     var highChild = productGroup.newChild()
+       .customLabelBuilder()
+       .withType("CUSTOM_LABEL_4")
+       .withValue("high")
+       .build();
+
+ //    highChild.setMaxCpc((adGroup.bidding().getCpc() + 0.04));
+   }
+}
